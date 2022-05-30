@@ -1,10 +1,23 @@
+import { Text } from '@chakra-ui/react'
 import type { NextPage } from 'next'
-import Head from 'next/head'
-import Image from 'next/image'
-import styles from '../styles/Home.module.css'
+import { useAuthState } from 'react-firebase-hooks/auth'
+import { auth } from '../firebase/clientApp'
 
 const Home: NextPage = () => {
-  return <div>hello</div>
+  const [user, loading, error] = useAuthState(auth)
+  console.log(user?.email)
+
+  return (
+    <>
+      {user ? (
+        <Text fontSize='36px' align='center' color='red' mt={6}>
+          I love You!{' '}
+        </Text>
+      ) : (
+        <Text fontSize='20px'>hello</Text>
+      )}
+    </>
+  )
 }
 
 export default Home
