@@ -3,6 +3,9 @@ import { preventOverflow } from '@popperjs/core'
 import React, { useState } from 'react'
 import { useSetRecoilState } from 'recoil'
 import { authModalState } from '../../../atoms/authModalAtom'
+import { useSignInWithEmailAndPassword } from 'react-firebase-hooks/auth'
+import { auth } from '../../../firebase/clientApp'
+import { FIREBASE_ERRORS } from '../../../firebase/errors'
 
 const Login: React.FC = () => {
   const setAuthModalState = useSetRecoilState(authModalState)
@@ -11,7 +14,14 @@ const Login: React.FC = () => {
     password: '',
   })
 
-  const onSubmit = () => {}
+  const [signInWithEmailAndPassword, user, loading, error] =
+    useSignInWithEmailAndPassword(auth)
+
+  const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+
+    signInWithEmailAndPassword(loginForm.email, loginForm.password)
+  }
 
   const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setLoginForm((prev) => ({
@@ -66,7 +76,16 @@ const Login: React.FC = () => {
         }}
         bg='gray.50'
       />
-      <Button width='100%' height='36px' mb={2} type='submit'>
+      <Text align='center' color='red' fontSize='12px'>
+        {FIREBASE_ERRORS[error?.message as keyof typeof FIREBASE_ERRORS]}
+      </Text>
+      <Button
+        width='100%'
+        height='36px'
+        mb={2}
+        type='submit'
+        isLoading={loading}
+      >
         Log In
       </Button>
       <Flex fontSize='9pt' justifyContent='center'>
