@@ -39,7 +39,7 @@ const Login: React.FC = () => {
         type='email'
         mb={2}
         onChange={onChange}
-        fontSize='10px'
+        fontSize='12px'
         _placeholder={{ color: 'gray.500' }}
         _hover={{
           bg: 'white',
@@ -61,7 +61,7 @@ const Login: React.FC = () => {
         type='password'
         mb={2}
         onChange={onChange}
-        fontSize='10px'
+        fontSize='12px'
         _placeholder={{ color: 'gray.500' }}
         _hover={{
           bg: 'white',
@@ -88,6 +88,24 @@ const Login: React.FC = () => {
       >
         Log In
       </Button>
+      <Flex justifyContent='center' mb={2}>
+        <Text fontSize='10pt' mr={1}>
+          Forgot your password?
+        </Text>
+        <Text
+          fontSize='10pt'
+          color='blue.500'
+          cursor='pointer'
+          onClick={() =>
+            setAuthModalState((prev) => ({
+              ...prev,
+              view: 'resetPassword',
+            }))
+          }
+        >
+          Reset
+        </Text>
+      </Flex>
       <Flex fontSize='9pt' justifyContent='center'>
         <Text mr={1}>New here?</Text>
         <Text

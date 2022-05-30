@@ -5,7 +5,6 @@ import { auth } from '../firebase/clientApp'
 
 const Home: NextPage = () => {
   const [user, loading, error] = useAuthState(auth)
-  console.log(user?.email)
 
   return (
     <>

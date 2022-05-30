@@ -47,7 +47,7 @@ const SignUp: React.FC = () => {
         type='email'
         mb={2}
         onChange={onChange}
-        fontSize='10px'
+        fontSize='12px'
         _placeholder={{ color: 'gray.500' }}
         _hover={{
           bg: 'white',
@@ -69,7 +69,7 @@ const SignUp: React.FC = () => {
         type='password'
         mb={2}
         onChange={onChange}
-        fontSize='10px'
+        fontSize='12px'
         _placeholder={{ color: 'gray.500' }}
         _hover={{
           bg: 'white',
@@ -91,7 +91,7 @@ const SignUp: React.FC = () => {
         type='password'
         mb={2}
         onChange={onChange}
-        fontSize='10px'
+        fontSize='12px'
         _placeholder={{ color: 'gray.500' }}
         _hover={{
           bg: 'white',
@@ -121,7 +121,7 @@ const SignUp: React.FC = () => {
       >
         Sign Up
       </Button>
-      <Flex fontSize='9pt' justifyContent='center'>
+      <Flex fontSize='10pt' justifyContent='center'>
         <Text mr={1}>Already a redditor?</Text>
         <Text
           color='blue.500'
