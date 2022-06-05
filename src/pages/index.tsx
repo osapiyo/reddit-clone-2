@@ -10,7 +10,7 @@ const Home: NextPage = () => {
     <>
       {user ? (
         <Text fontSize='36px' align='center' color='red' mt={6}>
-          I love You!{' '}
+          I love Aki!{' '}
         </Text>
       ) : (
         <Text fontSize='20px'>hello</Text>
