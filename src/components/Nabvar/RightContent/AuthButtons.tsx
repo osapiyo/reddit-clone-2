@@ -34,7 +34,7 @@ const AuthButtons: React.FC = () => {
           })
         }}
       >
-        Sign In
+        Sign Up
       </Button>
     </>
   )

@@ -16,7 +16,13 @@ import {
   Icon,
   Flex,
 } from '@chakra-ui/react'
-import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore'
+import {
+  doc,
+  getDoc,
+  runTransaction,
+  serverTimestamp,
+  setDoc,
+} from 'firebase/firestore'
 import React, { useState } from 'react'
 import { BsFillEyeFill, BsFillPersonFill } from 'react-icons/bs'
 import { HiLockClosed } from 'react-icons/hi'
@@ -53,6 +59,8 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
   }
 
   const handleCreateCommunity = async () => {
+    if (error) setError('')
+
     const format = /[ `!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/
     if (format.test(communityName) || communityName.length < 3) {
       setError(
@@ -61,20 +69,36 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
       return
     }
 
-    const communityDocRef = doc(firestore, 'communities', communityName)
-    const communityDoc = await getDoc(communityDocRef)
+    setLoading(true)
 
-    if (communityDoc.exists()) {
-      setError(`Sorry, r/${communityName} is taken. Try another.`)
-      return
+    try {
+      const communityDocRef = doc(firestore, 'communities', communityName)
+
+      await runTransaction(firestore, async (transaction) => {
+        const communityDoc = await transaction.get(communityDocRef)
+        if (communityDoc.exists()) {
+          throw new Error(`Sorry, r/${communityName} is taken. Try another.`)
+        }
+        transaction.set(communityDocRef, {
+          creatorId: user?.uid,
+          createdAt: serverTimestamp(),
+          numberOfMembers: 1,
+          privacyType: communityType,
+        })
+
+        transaction.set(
+          doc(firestore, `users/${user?.uid}/communitySnippets`, communityName),
+          {
+            communityId: communityName,
+            isModerator: true,
+          }
+        )
+      })
+    } catch (error: any) {
+      console.log('handleCreateCommnunity error', error)
+      setError(error.message)
     }
-
-    await setDoc(communityDocRef, {
-      creatorId: user?.uid,
-      createdAt: serverTimestamp(),
-      numberOfMembers: 1,
-      privacyType: communityType,
-    })
+    setLoading(false)
   }
 
   return (
@@ -191,7 +215,11 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
             >
               Cancel
             </Button>
-            <Button height='30px' onClick={() => {}}>
+            <Button
+              height='30px'
+              onClick={handleCreateCommunity}
+              isLoading={loading}
+            >
               Create Community
             </Button>
           </ModalFooter>
