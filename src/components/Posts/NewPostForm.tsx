@@ -65,6 +65,7 @@ const NewPostForm: React.FC<NewPostFormProps> = () => {
       <Flex width='100%'>
         {formTabs.map((item, index) => (
           <TabItem
+            key={index}
             item={item}
             selected={item.title === selectedTab}
             setSelectedTab={setSelectedTab}
