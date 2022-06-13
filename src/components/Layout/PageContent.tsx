@@ -2,8 +2,6 @@ import React from 'react'
 import { Flex } from '@chakra-ui/react'
 
 const PageContent = ({ children }: { children: React.ReactNode }) => {
-  console.log('HERE IS CHILDREN: ', children)
-
   return (
     <Flex justify='center' p='16px 0px'>
       <Flex width='95%' justify='center' maxWidth='860px'>
