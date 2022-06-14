@@ -1,6 +1,16 @@
 import React, { useState } from 'react'
 import { Post } from '../../atoms/postsAtom'
-import { Flex, Icon, Stack, Text, Image, Skeleton } from '@chakra-ui/react'
+import {
+  Flex,
+  Icon,
+  Stack,
+  Text,
+  Image,
+  Skeleton,
+  Spinner,
+  Alert,
+  AlertIcon,
+} from '@chakra-ui/react'
 
 import { AiOutlineDelete } from 'react-icons/ai'
 import { BsChat, BsDot } from 'react-icons/bs'
@@ -33,9 +43,12 @@ const PostItem: React.FC<PostItemProps> = ({
   onSelectPost,
 }) => {
   const [loadingImage, setLoadingImage] = useState(true)
+  const [loadingDelete, setLoadingDelete] = useState(false)
+
   const [error, setError] = useState(false)
 
   const handleDelete = async () => {
+    setLoadingDelete(true)
     try {
       const success = await onDeletePost(post)
 
@@ -47,6 +60,7 @@ const PostItem: React.FC<PostItemProps> = ({
     } catch (error: any) {
       setError(error.message)
     }
+    setLoadingDelete(false)
   }
 
   return (
@@ -90,6 +104,12 @@ const PostItem: React.FC<PostItemProps> = ({
         />
       </Flex>
       <Flex direction='column' width='100%'>
+        {error && (
+          <Alert status='error'>
+            <AlertIcon />
+            <Text mr={2}>{error}</Text>
+          </Alert>
+        )}
         <Stack spacing={1} p='10px'>
           <Stack direction='row' spacing={0.6} align='center' fontSize='10pt'>
             {/* Home Page Check */}
@@ -157,8 +177,14 @@ const PostItem: React.FC<PostItemProps> = ({
               cursor='pointer'
               onClick={handleDelete}
             >
-              <Icon as={AiOutlineDelete} mr={2} />
-              <Text fontSize='10pt'>Delete</Text>
+              {loadingDelete ? (
+                <Spinner size='sm' />
+              ) : (
+                <>
+                  <Icon as={AiOutlineDelete} mr={2} />
+                  <Text fontSize='10pt'>Delete</Text>
+                </>
+              )}
             </Flex>
           )}
         </Flex>

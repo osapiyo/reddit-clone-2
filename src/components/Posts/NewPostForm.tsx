@@ -163,7 +163,7 @@ const NewPostForm: React.FC<NewPostFormProps> = ({ user }) => {
       {error && (
         <Alert status='error'>
           <AlertIcon />
-          <Text>Error creating post</Text>
+          <Text mr={2}>Error creating post</Text>
         </Alert>
       )}
     </Flex>
