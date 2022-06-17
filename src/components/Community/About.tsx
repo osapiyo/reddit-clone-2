@@ -13,6 +13,7 @@ type AboutProps = {
 
 const About: React.FC<AboutProps> = ({ communityData }) => {
   const router = useRouter()
+
   return (
     <Box position='sticky' top='14px'>
       <Flex
@@ -41,6 +42,7 @@ const About: React.FC<AboutProps> = ({ communityData }) => {
             </Flex>
           </Flex>
           <Divider />
+
           <Flex>
             <Icon as={RiCakeLine} fontSize={18} mr={2} />
             {communityData.createdAt && (
