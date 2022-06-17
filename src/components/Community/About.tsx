@@ -42,7 +42,6 @@ const About: React.FC<AboutProps> = ({ communityData }) => {
             </Flex>
           </Flex>
           <Divider />
-
           <Flex>
             <Icon as={RiCakeLine} fontSize={18} mr={2} />
             {communityData.createdAt && (
