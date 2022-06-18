@@ -1,11 +1,29 @@
-import { Box, Button, Divider, Flex, Icon, Stack, Text } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  Divider,
+  Flex,
+  Icon,
+  Stack,
+  Text,
+  Image,
+  Spinner,
+  Input,
+} from '@chakra-ui/react'
 import moment from 'moment'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React from 'react'
+import React, { useRef, useState } from 'react'
 import { HiOutlineDotsHorizontal } from 'react-icons/hi'
 import { RiCakeLine } from 'react-icons/ri'
-import { Community } from '../../atoms/communitiesAtom'
+import { Community, communityState } from '../../atoms/communitiesAtom'
+import { useAuthState } from 'react-firebase-hooks/auth'
+import { auth, firestore, storage } from '../../firebase/clientApp'
+import useSelectFile from '../../hooks/useSelectFile'
+import { FaReddit } from 'react-icons/fa'
+import { getDownloadURL, ref, uploadString } from 'firebase/storage'
+import { doc, updateDoc } from 'firebase/firestore'
+import { useSetRecoilState } from 'recoil'
 
 type AboutProps = {
   communityData: Community
@@ -13,6 +31,35 @@ type AboutProps = {
 
 const About: React.FC<AboutProps> = ({ communityData }) => {
   const router = useRouter()
+  const [user] = useAuthState(auth)
+  const selectedFileRef = useRef<HTMLInputElement>(null)
+  const { selectedFile, setSelectedFile, onSelectFile } = useSelectFile()
+  const [uploadingImage, setUploadingImage] = useState(false)
+  const setCommunityStateValue = useSetRecoilState(communityState)
+
+  const onUploadImage = async () => {
+    if (!selectedFile) return
+    setUploadingImage(true)
+    try {
+      const imageRef = ref(storage, `communities/${communityData.id}/image`)
+      await uploadString(imageRef, selectedFile, 'data_url')
+      const downloadURL = await getDownloadURL(imageRef)
+      await updateDoc(doc(firestore, 'communities', communityData.id), {
+        imageURL: downloadURL,
+      })
+
+      setCommunityStateValue((prev) => ({
+        ...prev,
+        currentCommnity: {
+          ...prev.currentCommnity,
+          imageURL: downloadURL,
+        } as Community,
+      }))
+    } catch (error) {
+      console.error('onUpdateImage error', error)
+    }
+    setUploadingImage(false)
+  }
 
   return (
     <Box position='sticky' top='14px'>
@@ -59,6 +106,59 @@ const About: React.FC<AboutProps> = ({ communityData }) => {
               Create Post
             </Button>
           </Link>
+          {user?.uid === communityData.creatorId && (
+            <>
+              <Divider />
+              <Stack spacing={1} fontSize='10pt'>
+                <Text fontWeight={600}>Admin</Text>
+                <Flex align='center' justify='space-between'>
+                  <Text
+                    color='blue.500'
+                    cursor='pointer'
+                    _hover={{ textDecoration: 'underline' }}
+                    onClick={() => selectedFileRef.current?.click()}
+                  >
+                    Change Image
+                  </Text>
+                  {communityData.imageURL || selectedFile ? (
+                    <Image
+                      src={selectedFile || communityData.imageURL}
+                      borderRadius='full'
+                      boxSize='40px'
+                      alt='Community Image'
+                    />
+                  ) : (
+                    <Icon
+                      as={FaReddit}
+                      fontSize={40}
+                      color='brand.100'
+                      mr={2}
+                    />
+                  )}
+                </Flex>
+                {selectedFile &&
+                  (uploadingImage ? (
+                    <Spinner />
+                  ) : (
+                    <Text
+                      cursor='pointer'
+                      _hover={{ textDecoration: 'underline' }}
+                      onClick={onUploadImage}
+                    >
+                      Save Changes
+                    </Text>
+                  ))}
+                <Input
+                  id='file-upload'
+                  type='file'
+                  accept='image/x-png, image/gif, image/jpeg'
+                  hidden
+                  ref={selectedFileRef}
+                  onChange={onSelectFile}
+                />
+              </Stack>
+            </>
+          )}
         </Stack>
       </Flex>
     </Box>
