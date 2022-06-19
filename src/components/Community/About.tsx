@@ -12,7 +12,6 @@ import {
 } from '@chakra-ui/react'
 import moment from 'moment'
 import Link from 'next/link'
-import { useRouter } from 'next/router'
 import React, { useRef, useState } from 'react'
 import { HiOutlineDotsHorizontal } from 'react-icons/hi'
 import { RiCakeLine } from 'react-icons/ri'
@@ -30,14 +29,13 @@ type AboutProps = {
 }
 
 const About: React.FC<AboutProps> = ({ communityData }) => {
-  const router = useRouter()
   const [user] = useAuthState(auth)
   const selectedFileRef = useRef<HTMLInputElement>(null)
   const { selectedFile, setSelectedFile, onSelectFile } = useSelectFile()
   const [uploadingImage, setUploadingImage] = useState(false)
   const setCommunityStateValue = useSetRecoilState(communityState)
 
-  const onUploadImage = async () => {
+  const onUpdateImage = async () => {
     if (!selectedFile) return
     setUploadingImage(true)
     try {
@@ -101,7 +99,7 @@ const About: React.FC<AboutProps> = ({ communityData }) => {
               </Text>
             )}
           </Flex>
-          <Link href={`/r/${router.query.communityId}/submit`}>
+          <Link href={`/r/${communityData.id}/submit`}>
             <Button mt={3} height='30px'>
               Create Post
             </Button>
@@ -143,7 +141,7 @@ const About: React.FC<AboutProps> = ({ communityData }) => {
                     <Text
                       cursor='pointer'
                       _hover={{ textDecoration: 'underline' }}
-                      onClick={onUploadImage}
+                      onClick={onUpdateImage}
                     >
                       Save Changes
                     </Text>
