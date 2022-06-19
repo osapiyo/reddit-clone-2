@@ -164,6 +164,7 @@ const Comments: React.FC<CommentsProps> = ({
               <>
                 {comments.map((comment) => (
                   <CommentItem
+                    key={comment.id}
                     comment={comment}
                     onDeleteComment={onDeleteComment}
                     loadingDelete={false}
