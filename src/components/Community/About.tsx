@@ -91,7 +91,7 @@ const About: React.FC<AboutProps> = ({ communityData }) => {
           <Flex>
             <Icon as={RiCakeLine} fontSize={18} mr={2} />
             {communityData.createdAt && (
-              <Text>
+              <Text fontSize='10pt'>
                 Created{' '}
                 {moment(
                   new Date(communityData.createdAt.seconds * 1000)

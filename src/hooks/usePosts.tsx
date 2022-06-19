@@ -25,7 +25,13 @@ const usePosts = () => {
   const currentCommunity = useRecoilValue(communityState).currentCommunity
   const setAuthModalState = useSetRecoilState(authModalState)
 
-  const onVote = async (post: Post, vote: number, communityId: string) => {
+  const onVote = async (
+    event: React.MouseEvent<SVGElement, MouseEvent>,
+    post: Post,
+    vote: number,
+    communityId: string
+  ) => {
+    event.stopPropagation()
     if (!user) {
       setAuthModalState({ open: true, view: 'login' })
       return
@@ -114,6 +120,13 @@ const usePosts = () => {
         posts: updatedPosts,
         postVotes: updatedPostVotes,
       }))
+
+      if (postStateValue.selectedPost) {
+        setPostStateValue((prev) => ({
+          ...prev,
+          selectedPost: updatedPost,
+        }))
+      }
     } catch (error) {
       console.log('onVote error', error)
     }
@@ -128,19 +141,22 @@ const usePosts = () => {
   }
 
   const onDeletePost = async (post: Post): Promise<boolean> => {
+    console.log('DELETING POST', post.id)
+
     try {
       if (post.imageURL) {
         const imageRef = ref(storage, `posts/${post.id}/image`)
         await deleteObject(imageRef)
-
-        const postDocRef = doc(firestore, 'posts', post.id!)
-        await deleteDoc(postDocRef)
-
-        setPostStateValue((prev) => ({
-          ...prev,
-          posts: prev.posts.filter((item) => item.id !== post.id),
-        }))
       }
+
+      const postDocRef = doc(firestore, 'posts', post.id!)
+      await deleteDoc(postDocRef)
+
+      setPostStateValue((prev) => ({
+        ...prev,
+        posts: prev.posts.filter((item) => item.id !== post.id),
+      }))
+
       return true
     } catch (error) {
       return false
