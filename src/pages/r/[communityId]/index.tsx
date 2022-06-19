@@ -22,7 +22,7 @@ const CommunityPage: React.FC<CommunityPageProps> = ({ communityData }) => {
   useEffect(() => {
     setCommunityStateValue((prev) => ({
       ...prev,
-      currentCommnity: communityData,
+      currentCommunity: communityData,
     }))
   }, [])
 
