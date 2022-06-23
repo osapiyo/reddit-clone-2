@@ -2,6 +2,7 @@ import { Stack, Text } from '@chakra-ui/react'
 import { captureRejectionSymbol } from 'events'
 import {
   collection,
+  Firestore,
   getDocs,
   limit,
   orderBy,
@@ -13,7 +14,7 @@ import { useEffect, useState } from 'react'
 import { useAuthState } from 'react-firebase-hooks/auth'
 import { useRecoilValue } from 'recoil'
 import { communityState } from '../atoms/communitiesAtom'
-import { Post } from '../atoms/postsAtom'
+import { Post, PostVote } from '../atoms/postsAtom'
 import CreatePostLink from '../components/Community/CreatePostLink'
 import PageContent from '../components/Layout/PageContent'
 import PostItem from '../components/Posts/PostItem'
@@ -21,6 +22,7 @@ import PostLoader from '../components/Posts/PostLoader'
 import { auth, firestore } from '../firebase/clientApp'
 import usePosts from '../hooks/usePosts'
 import useCommunityData from '../hooks/useCommunityData'
+import Recommendations from '../components/Community/Recommendations'
 
 const Home: NextPage = () => {
   const [user, loadingUser] = useAuthState(auth)
@@ -81,7 +83,27 @@ const Home: NextPage = () => {
     }
   }
 
-  const getUserPostVotes = () => {}
+  const getUserPostVotes = async () => {
+    try {
+      const postIds = postStateValue.posts.map((post) => post.id)
+      const postVotesQuery = query(
+        collection(firestore, `user/${user?.uid}/postVotes`),
+        where('postId', 'in', postIds)
+      )
+      const postVoteDocs = await getDocs(postVotesQuery)
+      const postVotes = postVoteDocs.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }))
+
+      setPostStateValue((prev) => ({
+        ...prev,
+        postValue: postVotes as PostVote[],
+      }))
+    } catch (error) {
+      console.log('getUserPostVotes error', error)
+    }
+  }
 
   useEffect(() => {
     if (communityStateValue.snippetsFetched) buildUserHomeFeed()
@@ -90,6 +112,17 @@ const Home: NextPage = () => {
   useEffect(() => {
     if (!user && !loadingUser) buildNoUserHomeFeed()
   }, [user, loadingUser])
+
+  useEffect(() => {
+    if (!user && !loadingUser) getUserPostVotes()
+
+    return () => {
+      setPostStateValue((prev) => ({
+        ...prev,
+        postVotes: [],
+      }))
+    }
+  }, [user, postStateValue.posts])
 
   return (
     <PageContent>
@@ -118,7 +151,9 @@ const Home: NextPage = () => {
           </Stack>
         )}
       </>
-      <></>
+      <>
+        <Recommendations />
+      </>
     </PageContent>
   )
 }
